@@ -1,0 +1,55 @@
+#!/usr/bin/env zsh
+
+sessionfile=".session"
+
+force="NO"
+if [ "$1" = "-f" ]
+then
+	shift
+	force="YES"
+fi
+
+case $# in
+2)
+	year="$1"
+	day="$2"
+	;;
+1)
+	year="$(date +"%Y")"
+	day="$1"
+	;;
+*)
+	echo "usage: $0 [-f] [<year>] <day>"
+	exit 1
+esac
+
+if [ ! -s "${sessionfile}" ]
+then
+	echo "error: create a session file ${sessionfile} containing the session cookie token"
+	exit 1
+fi
+
+url="https://adventofcode.com/${year}/day/${day}/input"
+
+file="inputs/input-$(printf '%02d' "${day}").txt"
+
+function dump_file () {
+	cat "${file}"
+	read lines words chars ignore <<<$(cat "${file}" | wc)
+	read size ignore <<<$(du -h "${file}")
+	printf "[lines=%d words=%d chars=%d size=%s file=%s]\n" \
+		"${lines}" "${words}" "${chars}" "${size}" "${file}"
+}
+
+if [ "$force" != "YES" ] && [ -f "${file}" ]
+then
+	ctime="$(stat -f "%SB" "${file}")"
+	>&2 echo "get-input: cached at ${ctime}"
+	dump_file
+	exit 0
+fi
+
+>&2 echo "downloading input for ${year} day ${day}"
+curl -s -b "session=$(cat .session)" "${url}" --create-dirs -o "${file}"
+
+dump_file
