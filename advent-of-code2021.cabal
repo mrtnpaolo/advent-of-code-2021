@@ -9,14 +9,18 @@ copyright:          2021 Paolo Martini <mrtnpaolo@protonmail.com>
 
 library
     exposed-modules:    Advent,
-                        Advent.Coord
-                        Advent.Input
+                        Advent.Coord,
+                        Advent.Input,
+                        Advent.Search
+    other-modules:      Advent.Deque
     build-depends:      base,
                         array,
                         containers
     hs-source-dirs:     common
     default-language:   Haskell2010
-    default-extensions: ImportQualifiedPost
+    default-extensions: ImportQualifiedPost,
+                        PatternSynonyms,
+                        ViewPatterns
 
 executable Day00
     main-is:            Day00.hs
@@ -27,4 +31,3 @@ executable Day00
     default-extensions: ImportQualifiedPost,
                         TypeApplications,
                         ViewPatterns
-
