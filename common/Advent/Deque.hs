@@ -1,6 +1,7 @@
 module Advent.Deque
   ( Deque(Empty,(:<|),(:|>))
   , (<|), (|>), singleton
+  , fromList, appendList
   ) where
 
 import Data.Bits (shiftR,(.&.))

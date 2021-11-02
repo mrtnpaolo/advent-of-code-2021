@@ -81,6 +81,9 @@ drawCoords pixels =
     pixel c = M.findWithDefault ' ' c pixels
     Just (C ym xm,C yM xM) = boundingBox (M.keys pixels)
 
+showCoords :: Foldable t => t Coord -> String
+showCoords t = drawCoords $ M.fromList [ (c,'#') | c <- toList t ]
+
 withCoords :: [String] -> [(Coord,Char)]
 withCoords rows = concat $
   [ [ (C y x, c) | (x,c) <- zip [0..] xs ] | (y,xs) <- zip [0..] rows ]
