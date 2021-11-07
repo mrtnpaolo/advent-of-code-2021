@@ -13,7 +13,8 @@ library
     exposed-modules:    Advent,
                         Advent.Coord,
                         Advent.Input,
-                        Advent.Search
+                        Advent.Search,
+                        Advent.Chinese
     other-modules:      Advent.Deque,
                         Advent.PQueue
     build-depends:      base,
