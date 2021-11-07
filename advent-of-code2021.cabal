@@ -6,13 +6,16 @@ maintainer:         mrtnpaolo@protonmail.com
 license:            ISC
 license-file:       LICENSE
 copyright:          2021 Paolo Martini <mrtnpaolo@protonmail.com>
+homepage:           https://github.com/mrtnpaolo/advent-of-code-2021
+data-files:         inputs/*.txt
 
 library
     exposed-modules:    Advent,
                         Advent.Coord,
                         Advent.Input,
                         Advent.Search
-    other-modules:      Advent.Deque
+    other-modules:      Advent.Deque,
+                        Advent.PQueue
     build-depends:      base,
                         array,
                         containers
