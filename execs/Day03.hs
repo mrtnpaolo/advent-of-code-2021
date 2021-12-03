@@ -23,10 +23,10 @@ least xs
   | most xs == '0' = '1'
   | otherwise      = '0'
 
-part2 xs = oxy * co2
+part2 xs = o₂ * co₂
   where
-    oxy = sieve 0 most  xs
-    co2 = sieve 0 least xs
+    o₂  = sieve 0 most  xs
+    co₂ = sieve 0 least xs
 
     sieve _ _ [x] = toDecimal x
     sieve n p xs  = sieve (n+1) p xs'
