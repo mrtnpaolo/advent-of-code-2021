@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Advent
+import Advent (getInputLines,count)
 
 main =
   do xs <- getInputLines parse 1

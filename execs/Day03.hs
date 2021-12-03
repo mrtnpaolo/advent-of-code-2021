@@ -1,7 +1,6 @@
 module Main (main) where
 
-import Advent
-
+import Advent    (getInput,count)
 import Numeric   (readBin)
 import Data.List (transpose)
 

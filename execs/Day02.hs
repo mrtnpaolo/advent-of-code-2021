@@ -1,8 +1,8 @@
 module Main (main) where
 
-import Advent
-
-import Data.List (foldl')
+import Advent       (getInputLines)
+import Advent.Coord (Coord(..),origin,north,east,south,addCoord)
+import Data.List    (foldl')
 
 data Movement = Aim Int | Move Int
   deriving (Show)
