@@ -6,35 +6,32 @@ import Numeric   (readBin)
 import Data.List (transpose)
 
 main =
-  do inp <- getInputLines id 3
+  do inp <- getInput lines 3
      print (part1 inp)
      print (part2 inp)
 
-part1 xs = gamma*eps
+part1 xs = γ*ε
   where
-    gammaS = map mostCommon . transpose $ xs
-    [(gamma,_)] = readBin gammaS
+    γ = toDecimal . map most  . transpose $ xs
+    ε = toDecimal . map least . transpose $ xs
 
-    epsS = map leastCommon . transpose $ xs
-    [(eps,_)] = readBin epsS
-
-mostCommon :: String -> Char
-mostCommon xs
+most xs
   | count ('0'==) xs > count ('1'==) xs = '0'
   | otherwise                           = '1'
 
-leastCommon xs
-  | count ('0'==) xs > count ('1'==) xs = '1'
-  | otherwise                           = '0'
+least xs
+  | most xs == '0' = '1'
+  | otherwise      = '0'
 
 part2 xs = oxy * co2
   where
-    go _ _ [xs] = xs
-    go p n xs = go p (n+1) xs'
-      where
-        ns = head . drop n . transpose $ xs
-        digit = p ns
-        xs' = filter ((digit ==) . head . drop n) xs
+    oxy = sieve 0 most  xs
+    co2 = sieve 0 least xs
 
-    [(oxy,_)] = readBin $ go mostCommon 0 xs
-    [(co2,_)] = readBin $ go leastCommon 0 xs
+    sieve _ _ [x] = toDecimal x
+    sieve n p xs  = sieve (n+1) p xs'
+      where
+        digit = p (transpose xs !! n)
+        xs'   = filter (\x -> digit == x !! n) xs
+
+toDecimal xs = let [(n,_)] = readBin xs in n
