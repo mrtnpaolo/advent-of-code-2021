@@ -10,7 +10,7 @@ main =
      print (part1 inp)
      print (part2 inp)
 
-part1 xs = γ*ε
+part1 xs = γ * ε
   where
     γ = toDecimal . map most  . transpose $ xs
     ε = toDecimal . map least . transpose $ xs
@@ -31,7 +31,7 @@ part2 xs = o₂ * co₂
     sieve _ _ [x] = toDecimal x
     sieve n p xs  = sieve (n+1) p xs'
       where
-        digit = p (transpose xs !! n)
+        digit = p (map (!! n) xs)
         xs'   = filter (\x -> digit == x !! n) xs
 
 toDecimal xs = let [(n,_)] = readBin xs in n
