@@ -60,6 +60,4 @@ executable Day04
     default-language:   Haskell2010
     default-extensions: ImportQualifiedPost,
                         TypeApplications,
-                        ViewPatterns,
-                        ParallelListComp,
-                        PartialTypeSignatures
+                        ViewPatterns
