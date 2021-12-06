@@ -1,7 +1,6 @@
 module Main (main) where
 
-import Advent (getInput,freqs)
-import Data.IntMap.Strict qualified as IM
+import Advent (getInput,count)
 
 main =
   do inp <- getInput parse 6
@@ -10,18 +9,10 @@ main =
   where
     parse xs = read @[Int] $ '[':xs++"]"
 
-part1 = day 80
+timers xs = [ fromIntegral (count (i==) xs) | i <- [0..8] ] :: [Integer]
 
-part2 = day 256
+part1 fish = sum $ zipWith (*) (timers fish) [1421,1401,1191,1154,1034,950,905,779,768]
 
-day n fish = total (iterate spawn (freqs fish) !! n)
-
-spawn = combine . concatMap tick
-  where
-    tick (0,n) = [(6,n),(8,n)]
-    tick (i,n) = [(i-1,n)]
-
-    combine = IM.toAscList . IM.fromListWith (+)
-
-total xs = sum [ n | (_,n) <- xs ]
-
+part2 fish = sum $ zipWith (*) (timers fish) [6703087164,6206821033,5617089148
+                                             ,5217223242,4726100874,4368232009
+                                             ,3989468462,3649885552,3369186778]
