@@ -83,3 +83,11 @@ executable Day06
     default-extensions: ImportQualifiedPost
                         TypeApplications
                         ViewPatterns
+
+executable Day07
+    main-is:            Day07.hs
+    build-depends:      base,
+                        advent-of-code2021
+    hs-source-dirs:     execs
+    default-language:   Haskell2010
+    default-extensions: TypeApplications
