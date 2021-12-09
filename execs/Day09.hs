@@ -1,11 +1,10 @@
 module Main (main) where
 
 import Advent             (getInput)
-import Advent.Coord       (withCoords,boundingBox,cardinal,origin,Coord(..),coordCol,coordRow)
+import Advent.Coord       (withCoords,boundingBox,cardinal,Coord)
 import Advent.Search      (bfs)
 import Data.Ix            (inRange)
 import Data.Ord           (comparing)
-import Data.Maybe         (maybeToList)
 import Data.List          qualified as L
 import Data.Array.Unboxed qualified as A
 
@@ -15,7 +14,6 @@ main =
      print (part2 inp)
   where
     parse = toArray . withCoords (read @Int . pure) . lines
-    toArray :: [(Coord,Int)] -> A.Array Coord Int
     toArray ps = A.array bounds ps :: A.Array Coord Int
       where
         Just bounds = boundingBox (map fst ps)
