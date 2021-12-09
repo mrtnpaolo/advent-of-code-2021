@@ -27,6 +27,22 @@ library
                         PatternSynonyms,
                         ViewPatterns
 
+executable Template
+    main-is:            Template.hs
+    build-depends:      base,
+                        advent-of-code2021,
+                        containers,
+                        array
+    hs-source-dirs:     .
+    default-language:   Haskell2010
+    default-extensions: PartialTypeSignatures
+                        ImportQualifiedPost,
+                        TypeApplications,
+                        PatternSynonyms,
+                        ViewPatterns,
+                        RecordWildCards,
+                        ParallelListComp
+
 executable Day01
     main-is:            Day01.hs
     build-depends:      base,
