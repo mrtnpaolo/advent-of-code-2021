@@ -84,6 +84,6 @@ drawCoords pixels =
 showCoords :: Foldable t => t Coord -> String
 showCoords t = drawCoords $ M.fromList [ (c,'#') | c <- toList t ]
 
-withCoords :: [String] -> [(Coord,Char)]
-withCoords rows = concat $
-  [ [ (C y x, c) | (x,c) <- zip [0..] xs ] | (y,xs) <- zip [0..] rows ]
+withCoords :: (Char -> a) -> [String] -> [(Coord,a)]
+withCoords f rows = concat $
+  [ [ (C y x, f c) | (x,c) <- zip [0..] xs ] | (y,xs) <- zip [0..] rows ]
