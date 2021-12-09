@@ -118,7 +118,8 @@ executable Day08
 executable Day09
     main-is:            Day09.hs
     build-depends:      base,
-                        advent-of-code2021
+                        advent-of-code2021,
+                        containers
     hs-source-dirs:     execs
     default-language:   Haskell2010
     default-extensions: ImportQualifiedPost

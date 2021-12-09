@@ -1,25 +1,27 @@
 module Main (main) where
 
-import Advent                   (getInput)
-import Advent.Coord             (withCoords,cardinal)
-import Advent.Search            (bfs)
-import Data.Ord                 (comparing)
-import Data.Maybe               (maybeToList)
-import Data.List qualified as L (lookup,sortBy)
+import Advent          (getInput)
+import Advent.Coord    (withCoords,cardinal)
+import Advent.Search   (bfs)
+import Data.Ord        (comparing)
+import Data.Maybe      (maybeToList)
+import Data.List       qualified as L
+import Data.Map.Strict qualified as M
 
 main =
   do inp <- getInput parse 9
      print (part1 inp)
      print (part2 inp)
   where
-    parse = withCoords (read @Int . pure) . lines
+    parse = toMap . withCoords (read @Int . pure) . lines
+    toMap = M.filter (< 9) . M.fromList
 
 cave `around` c =
-  [ (c',y) | c' <- cardinal c, y <- maybeToList (L.lookup c' cave) ]
+  [ (c',y) | c' <- cardinal c, y <- maybeToList (cave M.!? c') ]
 
-lows cave = filter low cave
+lows cave = M.toList (M.filterWithKey low cave)
   where
-    low (c,x) = and [ y > x | (c',y) <- cave `around` c ]
+    low c x = and [ y > x | (_,y) <- cave `around` c ]
 
 part1 cave = sum [ x + 1 | (_,x) <- lows cave ]
 
