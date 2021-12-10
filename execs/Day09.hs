@@ -14,7 +14,7 @@ main =
      print (part2 inp)
   where
     parse = toArray . withCoords (read @Int . pure) . lines
-    toArray ps = A.array bounds ps :: A.Array Coord Int
+    toArray ps = A.array bounds ps :: A.UArray Coord Int
       where
         Just bounds = boundingBox (map fst ps)
 
@@ -33,7 +33,7 @@ lows cave = filter low (A.assocs cave)
 
 part1 cave = sum [ x + 1 | (_,x) <- lows cave ]
 
-part2 cave = product (take 3 (L.sortBy (comparing negate) basins))
+part2 cave = product (take 3 (L.sortOn negate basins))
   where
     basins = map (length . basin) (lows cave)
 

@@ -1,8 +1,7 @@
 module Main (main) where
 
 import Advent     (getInputLines,count)
-import Data.Ord   (comparing)
-import Data.List  (foldl',sort,sortBy,splitAt,(\\),elemIndex)
+import Data.List  (foldl',sort,sortOn,splitAt,(\\),elemIndex)
 
 main =
   do inp <- getInputLines parse 8
@@ -28,7 +27,7 @@ solve xs = foldl' (\x y -> x*10 + y) 0 digits
 
 unscramble ins = [l0,l1,l2,l3,l4,l5,l6,l7,l8,l9]
   where
-    [l1,l7,l4,s5a,s5b,s5c,s6a,s6b,s6c,l8] = sortBy (comparing length) ins
+    [l1,l7,l4,s5a,s5b,s5c,s6a,s6b,s6c,l8] = sortOn length ins
 
     x `minus` y = length (x \\ y)
 
