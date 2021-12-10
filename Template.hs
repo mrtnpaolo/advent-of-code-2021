@@ -11,6 +11,7 @@ import Data.Map.Strict    qualified as M
 import Data.IntSet        qualified as IS
 import Data.IntMap.Strict qualified as IM
 import Data.Array.Unboxed qualified as A
+import Debug.Trace
 
 main =
   do inp <- getInputLines parse _
@@ -23,8 +24,6 @@ main =
         sep  x  =  x
         f = id
 
-part1 :: _ -> _
 part1 _ = ()
 
-part2 :: _ -> _
 part2 _ = ()
