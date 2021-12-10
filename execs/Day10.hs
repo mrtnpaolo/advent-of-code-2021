@@ -1,70 +1,49 @@
 module Main (main) where
 
-import Advent
-import Numeric
-import Data.Ix
-import Data.Ord
-import Data.Char
-import Data.Maybe
-import Data.Either
-import Data.List          qualified as L
-import Data.Set           qualified as S
-import Data.Map.Strict    qualified as M
-import Data.IntSet        qualified as IS
-import Data.IntMap.Strict qualified as IM
-import Data.Array.Unboxed qualified as A
-import Debug.Trace
+import Advent      (getInputLines)
+import Data.List   (foldl',sort)
+import Data.Either (partitionEithers)
 
 main =
-  do inp <- getInputLines parse 10
-     print (part1 inp)
-     print (part2 inp)
+  do (corrupted,incomplete) <- partitionEithers <$> getInputLines parse 10
+     print (part1 corrupted)
+     print (part2 incomplete)
+
+parse = go []
   where
-    parse = id
-
-part1 = sum . map score . lefts . map corruptedChar
-
-corruptedChar xs = go [] xs
-  where
-    go seen [] = Right seen -- allow incomplete
-    go seen (x:xs)
-      | open x  = go (inc x seen) xs
-      | close x
-      , counterpart /= head seen = Left x
-      | counterpart == head seen = go (dec counterpart seen) xs
-        where
-          counterpart = matching x
-          inc x seen = (x:seen)
-          dec x (_:seen) = seen
-
-matching ')' = '('
-matching ']' = '['
-matching '}' = '{'
-matching '>' = '<'
-matching '(' = ')'
-matching '[' = ']'
-matching '{' = '}'
-matching '<' = '>'
+    go seen             []      = Right seen     -- string is incomplete
+    go seen@(~(s:rest)) (x:xs)
+      | open x                  = go (x:seen) xs
+      | close x && s == match x = go    rest  xs
+      |            s /= match x = Left x         -- string is corrupted
 
 open  x = x `elem` "([{<"
+
 close x = x `elem` ")]}>"
 
-score ')' = 3
-score ']' = 57
-score '}' = 1197
-score '>' = 25137
+match ')' = '('
+match ']' = '['
+match '}' = '{'
+match '>' = '<'
 
-part2 ls = middle $ map autocompleteScore $ map (map matching) incompletes
+match '(' = ')'
+match '[' = ']'
+match '{' = '}'
+match '<' = '>'
+
+part1 = sum . map score
   where
-    incompletes = rights (map corruptedChar ls)
+    score ')' = 3
+    score ']' = 57
+    score '}' = 1197
+    score '>' = 25137
 
-score2 ')' = 1
-score2 ']' = 2
-score2 '}' = 3
-score2 '>' = 4
-
-autocompleteScore = L.foldl' f 0
+part2 = middle . map (base5 . map score . map match)
   where
-    f acc x = acc*5 + score2 x
+    score ')' = 1
+    score ']' = 2
+    score '}' = 3
+    score '>' = 4
 
-middle xs = L.sort xs !! (length xs `div` 2)
+    base5 = foldl' (\a i -> a*5 + i) 0
+    middle xs = sort xs !! (length xs `div` 2)
