@@ -17,29 +17,27 @@ main =
 
 normalize = M.map (\x -> if x > 9 then 0 else x)
 
-step m = Just (flashes,normalize final)
+step m = (flashes,normalize final)
   where
-    m' = M.map succ m
-    flashing = M.keysSet (M.filter (> 9) m')
-    (flashes,final) = extend S.empty flashing (S.size flashing) m'
+    m'              = M.map succ m
+    flashing        = M.keysSet (M.filter (> 9) m')
+    (flashes,final) = extend S.empty flashing m'
 
-extend seen flashing flashes m
-  | S.null flashing = (flashes,m)
-  | otherwise       = extend seen' flashing' flashes' m'
+extend seen flashing m
+  | S.null flashing = (S.size seen,m)
+  | otherwise       = extend seen' flashing' m'
     where
       seen'     = S.union seen flashing
       m'        = L.foldl' increaseAdjacents m (S.toList flashing)
       flashing' = S.difference (M.keysSet (M.filter (> 9) m')) seen'
-      flashes'  = flashes + S.size flashing'
 
-increaseAdjacents m c =
-  L.foldl' (\m c -> M.insertWith (+) c 1 m) m (filter (`M.member` m) (neighbors c))
+increaseAdjacents m c = L.foldl' (\m c -> M.adjust succ c m) m (neighbors c)
 
 part1 m = sum (take 100 flashes)
   where
-    flashes = L.unfoldr step m
+    flashes = L.unfoldr (Just . step) m
 
 part2 m = i
   where
-    flashes = L.unfoldr step m
+    flashes = L.unfoldr (Just . step) m
     Just i  = L.elemIndex (M.size m) (0 : flashes)
