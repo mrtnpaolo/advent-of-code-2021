@@ -1,76 +1,45 @@
 module Main (main) where
 
-import Advent
-import Numeric
-import Data.Ix
-import Data.Ord
-import Data.Char
-import Data.List          qualified as L
-import Data.Set           qualified as S
-import Data.Map.Strict    qualified as M
-import Data.IntSet        qualified as IS
-import Data.IntMap.Strict qualified as IM
-import Data.Array.Unboxed qualified as A
-import Debug.Trace
-import Text.Printf
+import Advent          (getInput)
+import Advent.Coord    (withCoords,neighbors)
+import Data.Char       (digitToInt)
 
-showMap = showCoordsWith 1 (\n -> printf "%1d" n) . M.toList
+import Data.List       qualified as L
+import Data.Set        qualified as S
+import Data.Map.Strict qualified as M
 
 main =
   do inp <- getInput parse 11
-     putStrLn (showMap inp)
-     mapM_ (\(tot,m) -> printf "%s\n%d\n\n" (showMap m) tot) (part1 inp)
+     print (part1 inp)
      print (part2 inp)
   where
-    parse :: String -> M.Map Coord Int
-    parse = M.fromList . withCoords f . lines
-      where
-        f = read @Int . pure
+    parse = M.fromList . withCoords digitToInt . lines
 
-part1 m = take 1 . drop 99 $ (tail $ iterate step (0,m))
+normalize = M.map (\x -> if x > 9 then 0 else x)
 
-step (total,m) = (total + n',normalize final)
-
+step m = Just (flashes,normalize final)
   where
-
     m' = M.map succ m
-
     flashing = M.keysSet (M.filter (> 9) m')
+    (flashes,final) = extend S.empty flashing (S.size flashing) m'
 
-    n = S.size flashing
-
-    (n',final) = extend n S.empty flashing m'
-
-    normalize = M.map (\x -> if x > 9 then 0 else x)
-
-extend flashes alreadyFlashed flashing m
-
+extend seen flashing flashes m
   | S.null flashing = (flashes,m)
-
-  | otherwise = extend flashes' alreadyFlashed' newlyFlashing m'
-
+  | otherwise       = extend seen' flashing' flashes' m'
     where
+      seen'     = S.union seen flashing
+      m'        = L.foldl' increaseAdjacents m (S.toList flashing)
+      flashing' = S.difference (M.keysSet (M.filter (> 9) m')) seen'
+      flashes'  = flashes + S.size flashing'
 
-      flashes' = flashes + S.size newlyFlashing
+increaseAdjacents m c =
+  L.foldl' (\m c -> M.insertWith (+) c 1 m) m (filter (`M.member` m) (neighbors c))
 
-      alreadyFlashed' = S.union alreadyFlashed flashing
-
-      (newlyFlashing,m') = L.foldl increaseAdjacents (S.empty,m) (S.toList flashing)
-
-      increaseAdjacents acc c = L.foldl' f acc candidates
-        where
-          candidates = filter (`M.member` m) (neighbors c)
-
-          f (new,m) c
-            | c `S.notMember` alreadyFlashed' &&
-              m' M.! c > 9 = (S.insert c new,m')
-            | otherwise    = (new           ,m')
-            where
-              m' = M.insertWith (+) c 1 m
-
-part2 m = 1 + i
+part1 m = sum (take 100 flashes)
   where
-    flashes = [ tot | (tot,_) <- iterate step (0,m) ]
-    increments = zipWith (-) (tail flashes) flashes
-    Just i = L.findIndex (M.size m ==) increments
+    flashes = L.unfoldr step m
 
+part2 m = i
+  where
+    flashes = L.unfoldr step m
+    Just i  = L.elemIndex (M.size m) (0 : flashes)
