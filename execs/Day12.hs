@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Advent          (getInputLines,count,bfs)
+import Advent          (getInputLines,count,dfs,dfsOn)
 import Data.Char       (isLower,isUpper)
 import Data.Map.Strict qualified as M
 
@@ -22,31 +22,32 @@ main =
         fixends  = map \case ("end",_) -> ("end",[]); x -> x
                  . map \(from,to) -> (from,filter ("start" /=) to)
 
-explore pick links = paths
+explore p links = paths
   where
-    paths = filter complete (bfs next ["start"])
+    paths = filter complete search
 
     complete ("end":_) = True
     complete _         = False
 
-    next path@(here:_) = concatMap (pick links path) (links M.! here)
+    search = dfs next ["start"]
+
+    next path@(here:_) = concatMap allowed (links M.! here)
+      where
+        allowed there@(t:_)
+          | isUpper t    = [ there:path ]
+          | p path there = [ there:path ]
+          | otherwise    = []
 
 part1 = explore pick
 
-pick links path there@(t:_)
-  | isLower t && there `notElem` path = [there : path]
-  | isUpper t                         = [there : path]
-  | otherwise                         = []
+pick path there = there `notElem` path
 
 part2 = explore pick'
 
-pick' links path there
+pick' path there
   | or [ count (x ==) path == 2 | x <- filter (isLower . head) path ]
-  = pick links path there
+  = pick path there
   | otherwise
-  = pick2 links path there
+  = pick2 path there
 
-pick2 links path there@(t:_)
-  | isLower t && count (there ==) path <= 1 = [there : path]
-  | isUpper t = [there : path]
-  | otherwise = []
+pick2 path there@(t:_) = count (there ==) path <= 1
