@@ -150,12 +150,6 @@ executable Day12
                         array
     hs-source-dirs:     execs
     default-language:   Haskell2010
-    default-extensions: PartialTypeSignatures
-                        ImportQualifiedPost,
-                        TypeApplications,
-                        PatternSynonyms,
-                        ViewPatterns,
-                        RecordWildCards,
-                        ParallelListComp,
-                        LambdaCase,
+    default-extensions: ImportQualifiedPost
                         BlockArguments
+                        LambdaCase
