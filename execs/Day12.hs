@@ -1,7 +1,8 @@
 module Main (main) where
 
-import Advent          (getInputLines,count,dfs,dfsOn)
+import Advent          (getInputLines,count,dfs)
 import Data.Char       (isLower,isUpper)
+import Data.Set        qualified as S
 import Data.Map.Strict qualified as M
 
 main =
@@ -22,6 +23,16 @@ main =
         fixends  = map \case ("end",_) -> ("end",[]); x -> x
                  . map \(from,to) -> (from,filter ("start" /=) to)
 
+type Path = [String]
+
+type Links = M.Map String [String]
+
+type Picker = Maybe String
+           -> Path
+           -> String
+           -> [(Path, Maybe String)]
+
+explore :: Picker -> Links -> [Path]
 explore p links = paths
   where
     paths = filter complete search
@@ -29,25 +40,25 @@ explore p links = paths
     complete ("end":_) = True
     complete _         = False
 
-    search = dfs next ["start"]
+    search = map fst (dfs next (["start"],Nothing))
 
-    next path@(here:_) = concatMap allowed (links M.! here)
+    next (path@(here:_),dup) = concatMap allowed (links M.! here)
       where
         allowed there@(t:_)
-          | isUpper t    = [ there:path ]
-          | p path there = [ there:path ]
-          | otherwise    = []
+          | isUpper t = [ (there:path,dup) ]
+          | otherwise = p dup path there
 
 part1 = explore pick
 
-pick path there = there `notElem` path
+pick dup path there
+  | there `elem` path = []
+  | otherwise         = [ (there:path,dup) ]
 
 part2 = explore pick'
 
-pick' path there
-  | or [ count (x ==) path == 2 | x <- filter (isLower . head) path ]
-  = pick path there
-  | otherwise
-  = pick2 path there
+pick' Nothing  = pick2
+pick' dup      = pick dup
 
-pick2 path there@(t:_) = count (there ==) path <= 1
+pick2 path there = [ (there:path,dup) ]
+  where
+    dup | there `elem` path = Just there | otherwise = Nothing
