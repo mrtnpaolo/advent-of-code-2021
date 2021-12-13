@@ -36,11 +36,13 @@ executable Template
     hs-source-dirs:     .
     default-language:   Haskell2010
     default-extensions: PartialTypeSignatures
-                        ImportQualifiedPost,
-                        TypeApplications,
-                        PatternSynonyms,
-                        ViewPatterns,
-                        RecordWildCards,
+                        ImportQualifiedPost
+                        TypeApplications
+                        PatternSynonyms
+                        ViewPatterns
+                        BlockArguments
+                        LambdaCase
+                        RecordWildCards
                         ParallelListComp
 
 executable Day01
