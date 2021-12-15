@@ -1,59 +1,38 @@
---------------------------------------------------------------------------------
 module Main (main) where
 
-import Advent
-import Numeric
-import Data.Ix
-import Data.Ord
-import Data.Char
-import Data.Maybe
-import Data.List          qualified as L
-import Data.Set           qualified as S
-import Data.Map.Strict    qualified as M
-import Data.IntSet        qualified as IS
-import Data.IntMap.Strict qualified as IM
-import Data.Array.Unboxed qualified as A
-import Debug.Trace
+import Advent          (getInput)
+import Advent.Coord    (Coord(..),origin,addCoord,withCoords,cardinal)
+import Advent.Search   (astar)
+import Data.Char       (digitToInt)
+import Data.Maybe      (maybeToList)
+import Data.List       qualified as L
+import Data.Map.Strict qualified as M
 
 main =
   do inp <- getInput parse 15
-     mapM_ putStrLn (part1 inp)
+     print (part1 inp)
      print (part2 inp)
   where
     parse = M.fromList . withCoords digitToInt . lines
 
--- 554 wrong
--- 382 wrong
--- 384 wrong
--- 386 should be it, I was removing the origin twice, which has value 2
+part1 = solve
 
-part1 m = take 3 $ map (show . risk) (L.sortOn risk sols)
+part2 = solve . stitch
+
+solve m = least
   where
-    s (path,(c,r)) =
-      L.intercalate "\n"
-        [ showCoords path
-        , "(" ++ show c ++ ") risk=" ++ show r ]
+    Just least = L.lookup end search where end = maximum (M.keys m)
 
-    sols = filter complete search
+    search = astar next origin
 
-    risk (path,(c,r)) = r
+    next c = [ (d,cost,0) | d <- cardinal c, cost <- maybeToList (m M.!? d) ]
 
-    complete (path,(c,r)) = c == end
+stitch m = M.unions [ translate dy dx m | dy <- [0..4], dx <- [0..4] ]
 
-    search = bfsOn repr next [([origin],(origin,0))]
+translate dy dx m = M.map risk (M.mapKeys move m)
+  where
+    C h w = maximum (M.keys m) `addCoord` C 1 1
 
-    repr (path,(c,r)) = (c,r)
+    move (C y x) = C (y + dy*h) (x + dx*w)
 
-    Just (_,end) = boundingBox (M.keys m)
-
-    next (path,(c,_)) | c == end = []
-    next (path,(c,r)) =
-      [ (path',(d,r'))
-      | d <- cardinal c
-      , rd <- maybeToList (m M.!? d)
-      , let path' = d:path
-      , let r'    = r + rd
-      , r' < 400
-      ]
-
-part2 _ = ()
+    risk r = cycle [1..9] !! ((r - 1) + dx + dy)
