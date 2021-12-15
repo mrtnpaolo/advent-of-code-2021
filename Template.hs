@@ -5,6 +5,7 @@ import Numeric
 import Data.Ix
 import Data.Ord
 import Data.Char
+import Data.Maybe
 import Data.List          qualified as L
 import Data.Set           qualified as S
 import Data.Map.Strict    qualified as M
@@ -24,6 +25,6 @@ main =
         sep  x  =  x
         f = id
 
-part1 _ = ()
+part1 = id
 
-part2 _ = ()
+part2 = const ()
