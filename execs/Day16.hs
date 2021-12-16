@@ -3,6 +3,7 @@ module Main (main) where
 import Advent      (getInput)
 import Numeric     (readBin,showBin,readHex)
 import Text.Printf (printf)
+import Data.List   qualified as L
 
 main =
   do inp <- getInput id 16
@@ -20,11 +21,12 @@ data Packet
 
 fromHex byte = printf "%04b" (n :: Int) where [(n,"")] = readHex [byte]
 
-fromBin bytes = n where [(n,"")] = readBin bytes
+fromBin bits = n where [(n,"")] = readBin bits
 
-parse hex = let (pkt,_) = packet bits in pkt
+parse hex = head (L.unfoldr go (concatMap fromHex hex))
   where
-    bits = concatMap fromHex hex
+    go []   = Nothing
+    go bits = Just (packet bits)
 
 packet bits =
   case typ of
@@ -37,32 +39,28 @@ packet bits =
 
 lit ver bits = (Lit ver value,rest)
   where
-    value = fromBin bytes
+    value = fromBin valueBits
 
-    (bytes,rest) = go [] bits
+    (valueBits,rest) = go [] bits
 
-    go seen xs
-      | (x:new) <- take 5 xs =
-        case x of
-          '1' -> go (seen ++ new) (drop 5 xs)
-          '0' | all ('0'==) (drop 5 xs) -> (seen ++ new,[]       )
-              | otherwise               -> (seen ++ new,drop 5 xs)
-      | otherwise = (seen,xs)
+    go acc []         = (acc,[])
+    go acc ('0':bits) = (acc ++ take 4 bits,drop 4 bits)
+    go acc ('1':bits) = go (acc ++ take 4 bits) (drop 4 bits)
 
-app ver typ ('0':bits) = (App ver typ pkts,rest)
+app ver typ ('0':bits) = (App ver typ ps,rest)
   where
-    pkts = go (take n xs)
+    ps = go (take n xs)
     rest = drop n xs
 
     n = fromBin (take 15 bits)
     xs = drop 15 bits
 
     go []   = []
-    go bits = let (pkt,rest) = packet bits in pkt : go rest
+    go bits = let (p,rest) = packet bits in p : go rest
 
-app ver typ ('1':bits) = (App ver typ pkts,rest)
+app ver typ ('1':bits) = (App ver typ ps,rest)
   where
-    (pkts,rest) = go n id xs
+    (ps,rest) = go n id xs
 
     n = fromBin (take 11 bits)
     xs = drop 11 bits
@@ -72,8 +70,8 @@ app ver typ ('1':bits) = (App ver typ pkts,rest)
 
 part1 = sum . versions . parse
 
-versions (Lit ver _)      = [ver]
-versions (App ver _ pkts) = ver : concatMap versions pkts
+versions (Lit ver _)    = [ver]
+versions (App ver _ ps) = ver : concatMap versions ps
 
 part2 = eval . parse
 
