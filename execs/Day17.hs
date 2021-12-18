@@ -16,11 +16,15 @@ import Debug.Trace
 
 main =
   do inp <- getInput parse 17
-     --print (part1 inp)
+     print (part1 inp)
      print (part2 inp)
   where
-    parse = f . words . map \case c | c `elem` "xy-" -> c; c | not (isDigit c) -> ' '; c -> c
-    f ["x",xm,xM,"y",ym,yM] = (C (read ym) (read xm),C (read yM) (read xM))
+    parse = target . words . clean
+    clean = map \case c | c `elem` "xy-" || isDigit c -> c | otherwise -> ' '
+    target ["x",xm,xM,"y",ym,yM] =
+      (C (read ym) (read xm),C (read yM) (read xM))
+
+part1 (C (abs -> ym) _,_) = (ym * (ym - 1)) `div` 2
 
 tick (p@(C py px),v@(C vy vx)) = (C py' px',C vy' vx')
   where
@@ -28,31 +32,19 @@ tick (p@(C py px),v@(C vy vx)) = (C py' px',C vy' vx')
     px' = px + vx
 
     vy' = vy - 1
-    vx' | vx > 0 = vx - 1
-        | vx < 0 = vx + 1
+    vx' | vx > 0  = vx - 1
+        | vx < 0  = vx + 1
         | vx == 0 = 0
 
-shoot area v = takeWhile reasonable $ iterate tick start
+shoot area v = go (C 0 0,v)
   where
-    start = (C 0 0,v)
+    go q@(p@(C y x),(C yv xv))
+      | y < ym    = []
+      | otherwise = p : go (tick q)
+    (C ym _,_) = area
 
-    reasonable (C y _,_) = y >= ym
-    ym = minimum [ y | C y _ <- S.toList area ]
-
-part1 corners = maximum
-  [ maxY path
-  | v <- range (C (-500) (-500),C 1000 1000)
-  , let path = shoot area v
-  , any (`S.member` area) (map fst path)
-  ]
+part2 area = count (any inside) [ shoot area v
+                                | v <- range (C (-180) 1,C 200 140) ]
   where
-    area = S.fromList (range corners)
-
-part2 corners = count (any (`S.member` area) . map fst)
-  [ shoot area v
-  | v <- range (C (-500) (-500),C 1000 1000)
-  ]
-  where
-    area = S.fromList (range corners)
-
-maxY path = maximum [ y | (C y _,v) <- path ]
+    inside (C y x) = ym <= y && y <= yM && xm <= x && x <= xM
+    (C ym xm,C yM xM) = area
