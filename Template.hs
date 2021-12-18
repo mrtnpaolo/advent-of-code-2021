@@ -19,11 +19,7 @@ main =
      print (part1 inp)
      print (part2 inp)
   where
-    parse = f . words . map sep
-      where
-        sep ',' = ' '
-        sep  x  =  x
-        f = id
+    parse = words . map \case c | c `elem` ",->" -> ' '; c -> c
 
 part1 = id
 
