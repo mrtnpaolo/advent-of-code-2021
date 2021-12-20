@@ -26,7 +26,7 @@ solve (a,m) =
 step a (m,flag) = (m',not flag)
   where
     Just (cm,cM) = boundingBox (M.keys m)
-    margin = 3
+    margin = 1
     box    = ( cm `addCoord` (C (-margin) (-margin)) ,
                cM `addCoord` (C margin margin)       )
     m'     = M.fromList [ (c,enhance flag a m c) | c <- range box ]
