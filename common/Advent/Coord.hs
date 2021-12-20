@@ -45,6 +45,12 @@ neighbors c = c `seq`
   , above (left c), above (right c)
   , below (left c), below (right c) ]
 
+bookreading :: Coord -> [Coord]
+bookreading c = c `seq`
+  [ above (left c), above c, above (right c)
+  , left c        , c      , right c
+  , below (left c), below c, below (right c) ]
+
 manhattan :: Coord -> Coord -> Int
 manhattan (C y x) (C v u) = abs (y-v) + abs (x-u)
 
