@@ -2,40 +2,40 @@ module Main (main) where
 
 import Advent.Input    (getInput)
 import Advent.List     (count)
-import Advent.Coord    (Coord(..),bookreading,withCoords,boundingBox,addCoord)
+import Advent.Coord    (Coord(..),bookreading,showCoords)
 import Numeric         (readBin)
-import Data.Ix         (range)
-import Data.Char       (intToDigit)
-import Data.Map.Strict qualified as M
-import Control.Applicative ((<|>))
+import Data.List       qualified as L
+import Data.Set        qualified as S
+import Data.IntSet     qualified as IS
 
-main =
-  do solve =<< getInput parse 20
+main = enhance =<< getInput (parse . lines) 20
 
-parse (lines -> (a:[]:img)) = (map toBin a,M.fromList $ withCoords toBin img)
+data Pic = Pic !Bool !(S.Set Coord)
+
+size (Pic _ s) = length s
+
+instance Show Pic where show (Pic _ s) = showCoords s
+
+parse (a:[]:rows) = (s,pic)
   where
-    toBin '#' = 1; toBin '.' = 0
+    s   = IS.fromList [ i | (i,'#') <- zip [0..] a ]
+    pic = Pic False (S.fromList light)
+    light = [ C y x | (y,xs) <- zip [0..] rows, (x,'#') <- zip [0..] xs ]
 
-solve (a,m) =
-  do print (M.size $ M.filter (1 ==) m2)
-     print (M.size $ M.filter (1 ==) m50)
-  where
-    (m2 ,_) = iterate (step a) (m,False) !! 2
-    (m50,_) = iterate (step a) (m,False) !! 50
+enhance (a,pic) =
+  do let times n = iterate (tick a) pic !! n
+         p2  = times 2
+         p50 = times 50
+     print (size p2)
+     print (size p50)
 
-step a (m,flag) = (m',not flag)
+tick a (Pic bg s) = Pic bg' s'
   where
-    Just (cm,cM) = boundingBox (M.keys m)
-    margin = 1
-    box    = ( cm `addCoord` (C (-margin) (-margin)) ,
-               cM `addCoord` (C margin margin)       )
-    m'     = M.fromList [ (c,enhance flag a m c) | c <- range box ]
+    bg'  = IS.member (if bg then 511 else 0) a
+    s'   = S.filter fg (S.fromList (bookreading `concatMap` S.toList s))
 
-enhance flag a m c = enhanced
-  where
-    cs = bookreading c
-    void | a !! 0 == 0 = 0
-         | otherwise   = fromEnum flag
-    digits = [ intToDigit v | c' <- cs, Just v <- [m M.!? c' <|> Just void] ]
-    [(n,_)] = readBin digits
-    enhanced = a !! n
+    fg c = IS.member n a /= bg'
+      where
+        n = fromDigits 2 [ if S.member d s /= bg then 1 else 0 | d <- bookreading c ]
+
+fromDigits base = L.foldl' (\a i -> a*base + i) 0
