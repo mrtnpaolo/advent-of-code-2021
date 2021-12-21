@@ -248,16 +248,8 @@ executable Day21
     main-is:            Day21.hs
     build-depends:      base,
                         advent-of-code2021,
-                        containers,
-                        array
+                        containers
     hs-source-dirs:     execs
     default-language:   Haskell2010
-    default-extensions: PartialTypeSignatures
-                        ImportQualifiedPost
+    default-extensions: ImportQualifiedPost
                         TypeApplications
-                        PatternSynonyms
-                        ViewPatterns
-                        BlockArguments
-                        LambdaCase
-                        RecordWildCards
-                        ParallelListComp
